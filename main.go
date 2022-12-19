@@ -25,16 +25,21 @@ func main() {
 	var ceps [] string
 	numParams := len(os.Args) - 1
 
+	// Populate the ceps array
 	if numParams == 0 {
-		// var numCeps int
+		var numCeps int
+		var cep string
+		
+		println("How many CEPs you will check?")
+		fmt.Scan(&numCeps)
 
-		// println("How many CEPs you will check?")
-		// fmt.Scan(&numCeps)
+		for i := 0; i < numCeps; i++{
+			fmt.Println("\nEnter the", i+1, "CEP: ")
+			fmt.Scan(&cep)
+			ceps = append(ceps, cep)
+		}
 
-		// for i := range numCeps {}
-		// return
 	} else {
-		// We'll use the ceps list to save code
 		for _, cep := range os.Args[1:] {
 			ceps = append(ceps, cep)
 		}

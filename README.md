@@ -1,5 +1,5 @@
-# BuscaCep
-This code was made to search information about CEPs (similar to postal code) in Brasil.
+# Zip Code Finder
+This code was made to search information about CEPs (similar to zip code) in Brasil.
 
 ## There are 2 possibilities to use the application:
 

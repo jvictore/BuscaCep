@@ -34,7 +34,7 @@ func main() {
 		fmt.Scan(&numCeps)
 
 		for i := 0; i < numCeps; i++{
-			fmt.Println("\nEnter the", i+1, "CEP: ")
+			fmt.Print("Enter the ", i+1, " CEP: ")
 			fmt.Scan(&cep)
 			ceps = append(ceps, cep)
 		}
@@ -67,6 +67,7 @@ func main() {
 		}
 
 		fmt.Println(dataCep)
+		fmt.Println()
 	}
 
 	

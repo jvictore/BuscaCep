@@ -48,7 +48,7 @@ func main() {
 	var urlLeft string = "http://viacep.com.br/ws/"
 	var urlRight string = "/json/"
 
-	for _, cep := range ceps {
+	for idxCep, cep := range ceps {
 		req, err := http.Get(urlLeft + cep + urlRight)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error executing the request: %v\n", err)
@@ -66,8 +66,16 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error parsing the response: %v\n", err)
 		}
 
-		fmt.Println(dataCep)
+		fmt.Println(idxCep+1, "CEP:")
+		fmt.Println("CEP: ", dataCep.Cep)
+		fmt.Println("Logradouro: ", dataCep.Logradouro)
+		fmt.Println("Complemento: ", dataCep.Complemento)
+		fmt.Println("Bairro: ", dataCep.Bairro)
+		fmt.Println("Localidade: ", dataCep.Localidade)
+		fmt.Println("UF: ", dataCep.Uf)
+		fmt.Println("IBGE: ", dataCep.Ibge)
 		fmt.Println()
+		
 	}
 
 	

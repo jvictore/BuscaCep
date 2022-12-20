@@ -22,9 +22,13 @@ type ViaCEP struct {
 }
 
 func main () {
-
+	http.HandleFunc("/", BuscaCepHandler)
+	http.ListenAndServe(":8080", nil)
 }
 
+func BuscaCepHandler(w http.ResponseWriter, r *http.Request){
+	w.Write([]byte("Hello, world!"))
+}
 
 func app() {
 	var ceps [] string

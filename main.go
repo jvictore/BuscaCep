@@ -21,7 +21,12 @@ type ViaCEP struct {
 	Siafi       string `json:"siafi"`
 }
 
-func main() {
+func main () {
+
+}
+
+
+func app() {
 	var ceps [] string
 	numParams := len(os.Args) - 1
 
@@ -69,8 +74,6 @@ func main() {
 		printDataCep(idxCep, &dataCep)
 		
 	}
-
-	
 }
 
 func printDataCep(idxCep int, dataCep *ViaCEP){

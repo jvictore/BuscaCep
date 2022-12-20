@@ -22,15 +22,14 @@ type ViaCEP struct {
 }
 
 func main () {
-	http.HandleFunc("/", BuscaCepHandler)
-	http.ListenAndServe(":8080", nil)
+	BuscaCeps()
 }
 
 func BuscaCepHandler(w http.ResponseWriter, r *http.Request){
 	w.Write([]byte("Hello, world!"))
 }
 
-func app() {
+func BuscaCeps(){
 	var ceps [] string
 	numParams := len(os.Args) - 1
 
@@ -54,30 +53,37 @@ func app() {
 		}
 	}
 
+	for idxCep, cep := range ceps {
+		dataCep, err := BuscaCep(cep)
+		if err != nil{
+				
+		}
+		printDataCep(idxCep, dataCep)
+	}
+}
+
+func BuscaCep(cep string) (*ViaCEP, error) { 
 	var urlLeft string = "http://viacep.com.br/ws/"
 	var urlRight string = "/json/"
-
-	for idxCep, cep := range ceps {
-		req, err := http.Get(urlLeft + cep + urlRight)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error executing the request: %v\n", err)
-		}
-		defer req.Body.Close()
-		
-		res, err := io.ReadAll(req.Body)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading the response: %v\n", err)
-		}
-
-		var dataCep ViaCEP
-		err = json.Unmarshal(res, &dataCep)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing the response: %v\n", err)
-		}
-
-		printDataCep(idxCep, &dataCep)
-		
+	
+	req, err := http.Get(urlLeft + cep + urlRight)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error executing the request: %v\n", err)
 	}
+	defer req.Body.Close()
+	
+	res, err := io.ReadAll(req.Body)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading the response: %v\n", err)
+	}
+
+	var dataCep ViaCEP
+	err = json.Unmarshal(res, &dataCep)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing the response: %v\n", err)
+	}
+
+	return &dataCep, nil
 }
 
 func printDataCep(idxCep int, dataCep *ViaCEP){

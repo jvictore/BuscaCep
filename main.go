@@ -48,6 +48,7 @@ func BuscaCepHandler(w http.ResponseWriter, r *http.Request){
 
 }
 
+
 func BuscaCep(cep string) (*ViaCEP, error) { 
 	var urlLeft string = "http://viacep.com.br/ws/"
 	var urlRight string = "/json/"
@@ -82,4 +83,37 @@ func printDataCep(idxCep int, dataCep *ViaCEP){
 	fmt.Println("UF: ", dataCep.Uf)
 	fmt.Println("IBGE: ", dataCep.Ibge)
 	fmt.Println()
+}
+
+func BuscaCeps(){
+	var ceps [] string
+	numParams := len(os.Args) - 1
+
+	// Populate the ceps array
+	if numParams == 0 {
+		var numCeps int
+		var cep string
+		
+		println("How many CEPs you will check?")
+		fmt.Scan(&numCeps)
+
+		for i := 0; i < numCeps; i++{
+			fmt.Print("Enter the ", i+1, " CEP: ")
+			fmt.Scan(&cep)
+			ceps = append(ceps, cep)
+		}
+
+	} else {
+		for _, cep := range os.Args[1:] {
+			ceps = append(ceps, cep)
+		}
+	}
+
+	for idxCep, cep := range ceps {
+		dataCep, err := BuscaCep(cep)
+		if err != nil{
+				
+		}
+		printDataCep(idxCep, dataCep)
+	}
 }

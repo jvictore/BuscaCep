@@ -21,13 +21,13 @@ type ViaCEP struct {
 	Siafi       string `json:"siafi"`
 }
 
-func main () {
-	http.HandleFunc("/", BuscaCepHandler)
+func main() {
+	http.HandleFunc("/", SearchCepHandler)
 	http.ListenAndServe(":8080", nil)
 }
 
-func BuscaCepHandler(w http.ResponseWriter, r *http.Request){
-	if r.URL.Path != "/"{
+func SearchCepHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -36,7 +36,7 @@ func BuscaCepHandler(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	cep, error := BuscaCep(cepParam)
+	cep, error := SearchCep(cepParam)
 	if error != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -48,17 +48,16 @@ func BuscaCepHandler(w http.ResponseWriter, r *http.Request){
 
 }
 
-
-func BuscaCep(cep string) (*ViaCEP, error) { 
+func SearchCep(cep string) (*ViaCEP, error) {
 	var urlLeft string = "http://viacep.com.br/ws/"
 	var urlRight string = "/json/"
-	
+
 	req, err := http.Get(urlLeft + cep + urlRight)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error executing the request: %v\n", err)
 	}
 	defer req.Body.Close()
-	
+
 	res, err := io.ReadAll(req.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading the response: %v\n", err)
@@ -73,7 +72,7 @@ func BuscaCep(cep string) (*ViaCEP, error) {
 	return &dataCep, nil
 }
 
-func printDataCep(idxCep int, dataCep *ViaCEP){
+func printDataCep(idxCep int, dataCep *ViaCEP) {
 	fmt.Println(idxCep+1, "CEP:")
 	fmt.Println("CEP: ", dataCep.Cep)
 	fmt.Println("Logradouro: ", dataCep.Logradouro)
@@ -85,19 +84,19 @@ func printDataCep(idxCep int, dataCep *ViaCEP){
 	fmt.Println()
 }
 
-func BuscaCeps(){
-	var ceps [] string
+func SearchCeps() {
+	var ceps []string
 	numParams := len(os.Args) - 1
 
 	// Populate the ceps array
 	if numParams == 0 {
 		var numCeps int
 		var cep string
-		
+
 		println("How many CEPs you will check?")
 		fmt.Scan(&numCeps)
 
-		for i := 0; i < numCeps; i++{
+		for i := 0; i < numCeps; i++ {
 			fmt.Print("Enter the ", i+1, " CEP: ")
 			fmt.Scan(&cep)
 			ceps = append(ceps, cep)
@@ -110,9 +109,9 @@ func BuscaCeps(){
 	}
 
 	for idxCep, cep := range ceps {
-		dataCep, err := BuscaCep(cep)
-		if err != nil{
-				
+		dataCep, err := SearchCep(cep)
+		if err != nil {
+
 		}
 		printDataCep(idxCep, dataCep)
 	}

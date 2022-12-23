@@ -84,6 +84,8 @@ func printDataCep(idxCep int, dataCep *ViaCEP) {
 	fmt.Println()
 }
 
+
+// We won't use this func anymore. Saving just in case I change idea to look for many ceps at the same time.
 func SearchCeps() {
 	var ceps []string
 	numParams := len(os.Args) - 1

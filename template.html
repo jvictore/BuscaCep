@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Cursos</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Horas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <tr>
+                <td>{{ .Cep}}</td>
+                <td>{{ .Logradouro}}</td>
+                <td>{{ .Complemento}}</td>
+                <td>{{ .Bairro}}</td>
+                <td>{{ .Uf}}</td>
+                <td>{{ .Ibge}}</td>
+                <td>{{ .Gia}}</td>
+                <td>{{ .Ddd}}</td>
+                <td>{{ .Siafi}}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -22,44 +22,30 @@ type ViaCEP struct {
 }
 
 func main () {
-	BuscaCeps()
+	http.HandleFunc("/", BuscaCepHandler)
+	http.ListenAndServe(":8080", nil)
 }
 
 func BuscaCepHandler(w http.ResponseWriter, r *http.Request){
-	w.Write([]byte("Hello, world!"))
-}
-
-func BuscaCeps(){
-	var ceps [] string
-	numParams := len(os.Args) - 1
-
-	// Populate the ceps array
-	if numParams == 0 {
-		var numCeps int
-		var cep string
-		
-		println("How many CEPs you will check?")
-		fmt.Scan(&numCeps)
-
-		for i := 0; i < numCeps; i++{
-			fmt.Print("Enter the ", i+1, " CEP: ")
-			fmt.Scan(&cep)
-			ceps = append(ceps, cep)
-		}
-
-	} else {
-		for _, cep := range os.Args[1:] {
-			ceps = append(ceps, cep)
-		}
+	if r.URL.Path != "/"{
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	cepParam := r.URL.Query().Get("cep")
+	if cepParam == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	cep, error := BuscaCep(cepParam)
+	if error != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	for idxCep, cep := range ceps {
-		dataCep, err := BuscaCep(cep)
-		if err != nil{
-				
-		}
-		printDataCep(idxCep, dataCep)
-	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(*cep)
+
 }
 
 func BuscaCep(cep string) (*ViaCEP, error) { 

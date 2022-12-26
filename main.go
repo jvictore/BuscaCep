@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 type ViaCEP struct {
@@ -74,7 +75,8 @@ func SearchCep(cep string) (*ViaCEP, error) {
 	var urlLeft string = "http://viacep.com.br/ws/"
 	var urlRight string = "/json/"
 
-	req, err := http.Get(urlLeft + cep + urlRight)
+	c := http.Client{Timeout: time.Second}
+	req, err := c.Get(urlLeft + cep + urlRight)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error executing the request: %v\n", err)
 	}

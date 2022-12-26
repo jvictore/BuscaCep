@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -11,7 +12,6 @@ import (
 type ViaCEP struct {
 	Cep         string `json:"cep"`
 	Logradouro  string `json:"logradouro"`
-	Complemento string `json:"complemento"`
 	Bairro      string `json:"bairro"`
 	Localidade  string `json:"localidade"`
 	Uf          string `json:"uf"`
@@ -23,7 +23,30 @@ type ViaCEP struct {
 
 func main() {
 	http.HandleFunc("/", SearchCepHandler)
+	http.HandleFunc("/ui", SearchCepUI)
 	http.ListenAndServe(":8080", nil)
+}
+
+func SearchCepUI(w http.ResponseWriter, r *http.Request) {
+	cepParam := r.URL.Query().Get("cep")
+	if cepParam == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	cep, error := SearchCep(cepParam)
+	if error != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(os.Stdout).Encode(*cep)
+
+	t := template.Must(template.New("template.html").ParseFiles("template.html"))
+
+	err := t.Execute(w, cep)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error executing the request: %v\n", err)
+	}
 }
 
 func SearchCepHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +68,6 @@ func SearchCepHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(*cep)
-
 }
 
 func SearchCep(cep string) (*ViaCEP, error) {
@@ -76,14 +98,12 @@ func printDataCep(idxCep int, dataCep *ViaCEP) {
 	fmt.Println(idxCep+1, "CEP:")
 	fmt.Println("CEP: ", dataCep.Cep)
 	fmt.Println("Logradouro: ", dataCep.Logradouro)
-	fmt.Println("Complemento: ", dataCep.Complemento)
 	fmt.Println("Bairro: ", dataCep.Bairro)
 	fmt.Println("Localidade: ", dataCep.Localidade)
 	fmt.Println("UF: ", dataCep.Uf)
 	fmt.Println("IBGE: ", dataCep.Ibge)
 	fmt.Println()
 }
-
 
 // We won't use this func anymore. Saving just in case I change idea to look for many ceps at the same time.
 func SearchCeps() {

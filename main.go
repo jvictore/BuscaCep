@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -75,23 +76,28 @@ func SearchCep(cep string) (*ViaCEP, error) {
 	var urlLeft string = "http://viacep.com.br/ws/"
 	var urlRight string = "/json/"
 
-	c := http.Client{Timeout: time.Second}
-	req, err := c.Get(urlLeft + cep + urlRight)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error executing the request: %v\n", err)
-	}
-	defer req.Body.Close()
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
 
-	res, err := io.ReadAll(req.Body)
+	req, err := http.NewRequestWithContext(ctx, "GET", urlLeft + cep + urlRight, nil)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading the response: %v\n", err)
+		panic(err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
 	}
 
 	var dataCep ViaCEP
-	err = json.Unmarshal(res, &dataCep)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing the response: %v\n", err)
-	}
+	err = json.Unmarshal(body, &dataCep)
 
 	return &dataCep, nil
 }

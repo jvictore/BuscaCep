@@ -56,3 +56,5 @@ This code was made to search information about CEPs (similar to zip code) in Bra
     // Localidade:  Porto Alegre
     // UF:  RS
     // IBGE:  4314902
+
+create table dataceps (id varchar(255), cep varchar(8), logradouro varchar(255), bairro varchar(255), localidade varchar(255), uf varchar(2), ibge varchar(255), primary key(id));

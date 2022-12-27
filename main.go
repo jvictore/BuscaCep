@@ -9,9 +9,11 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"github.com/google/uuid"
 )
 
 type ViaCEP struct {
+	ID string
 	Cep         string `json:"cep"`
 	Logradouro  string `json:"logradouro"`
 	Bairro      string `json:"bairro"`
@@ -21,6 +23,21 @@ type ViaCEP struct {
 	Gia         string `json:"gia"`
 	Ddd         string `json:"ddd"`
 	Siafi       string `json:"siafi"`
+}
+
+func NewProduct(cep string, logradouro string, bairro string, localidade string, uf string, ibge string, gia, string, ddd string, siafi string) *ViaCEP{
+	return &ViaCEP{
+		ID: uuid.New().String(),
+		Cep: cep,
+		Logradouro: logradouro,
+		Bairro: bairro,
+		Localidade: localidade,
+		Uf: uf,
+		Ibge: ibge,
+		Gia: gia,
+		Ddd: ddd,
+		Siafi: siafi,
+	}
 }
 
 func main() {

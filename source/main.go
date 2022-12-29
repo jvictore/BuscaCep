@@ -39,23 +39,28 @@ func NewDataCep() *ViaCEP{
 }
 
 func main() {
+	http.HandleFunc("/", SearchCepHandler)
+	http.HandleFunc("/ui", SearchCepUIHandler)
+	http.HandleFunc("/add", AddCepHandler)
+	http.HandleFunc("/get", UpdateCepHandler)
+	http.ListenAndServe(":8080", nil)
+}
+
+func UpdateCepHandler(w http.ResponseWriter, r *http.Request){
 	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/datacep")
 	if err != nil {
-		panic(err)
+		 panic(err)
 	}
 	defer db.Close()
-	cep, err := SearchCep("13052200")
-	if err != nil{
-		panic(err)
+
+	cepParam := r.URL.Query().Get("cep")
+	if cepParam != "" {
+		w.WriteHeader(http.StatusBadRequest)
 	}
-	erro := insertDataCep(db, cep)
-	if erro != nil {
-		panic(err)
-	}
-	// http.HandleFunc("/", SearchCepHandler)
-	// http.HandleFunc("/ui", SearchCepUIHandler)
-	// http.HandleFunc("/add", AddCepHandler)
-	// http.ListenAndServe(":8080", nil)
+
+	
+
+
 }
 
 func AddCepHandler(w http.ResponseWriter, r *http.Request){
@@ -75,10 +80,10 @@ func AddCepHandler(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	insertDataCep(db, cep)
+	InsertDataCep(db, cep)
 }
 
-func insertDataCep(db *sql.DB, cep *ViaCEP) error {
+func InsertDataCep(db *sql.DB, cep *ViaCEP) error {
 	stmt, err := db.Prepare("insert into dataceps(id, cep, logradouro, bairro, localidade, uf, ibge) values(?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err

@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	// "net/smtp"
 	"os"
 	"time"
-	"github.com/google/uuid"
-	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 )
 
 type ViaCEP struct {
@@ -82,12 +84,12 @@ func insertDataCep(db *sql.DB, cep *ViaCEP) error {
 		return err
 	}
 	defer stmt.Close()
-
+	
 	_, err = stmt.Exec(cep.ID, cep.Cep, cep.Logradouro, cep.Bairro, cep.Localidade, cep.Uf, cep.Ibge)
 	if err != nil {
-		fmt.Print("second")
 		return err
 	}
+
 	return nil
 }
 

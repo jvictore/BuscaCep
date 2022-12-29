@@ -10,6 +10,8 @@ import (
 	"os"
 	"time"
 	"github.com/google/uuid"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type ViaCEP struct {
@@ -20,33 +22,76 @@ type ViaCEP struct {
 	Localidade  string `json:"localidade"`
 	Uf          string `json:"uf"`
 	Ibge        string `json:"ibge"`
-	Gia         string `json:"gia"`
-	Ddd         string `json:"ddd"`
-	Siafi       string `json:"siafi"`
 }
 
-func NewProduct(cep string, logradouro string, bairro string, localidade string, uf string, ibge string, gia, string, ddd string, siafi string) *ViaCEP{
+func NewDataCep() *ViaCEP{
 	return &ViaCEP{
 		ID: uuid.New().String(),
-		Cep: cep,
-		Logradouro: logradouro,
-		Bairro: bairro,
-		Localidade: localidade,
-		Uf: uf,
-		Ibge: ibge,
-		Gia: gia,
-		Ddd: ddd,
-		Siafi: siafi,
+		Cep: "",
+		Logradouro: "",
+		Bairro: "",
+		Localidade: "",
+		Uf: "",
+		Ibge: "",
 	}
 }
 
 func main() {
-	http.HandleFunc("/", SearchCepHandler)
-	http.HandleFunc("/ui", SearchCepUI)
-	http.ListenAndServe(":8080", nil)
+	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/datacep")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	cep, err := SearchCep("13052200")
+	if err != nil{
+		panic(err)
+	}
+	erro := insertDataCep(db, cep)
+	if erro != nil {
+		panic(err)
+	}
+	// http.HandleFunc("/", SearchCepHandler)
+	// http.HandleFunc("/ui", SearchCepUIHandler)
+	// http.HandleFunc("/add", AddCepHandler)
+	// http.ListenAndServe(":8080", nil)
 }
 
-func SearchCepUI(w http.ResponseWriter, r *http.Request) {
+func AddCepHandler(w http.ResponseWriter, r *http.Request){
+	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/datacep")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	cepParam := r.URL.Query().Get("cep")
+	if cepParam == "" {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	cep, err := SearchCep(cepParam)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	insertDataCep(db, cep)
+}
+
+func insertDataCep(db *sql.DB, cep *ViaCEP) error {
+	stmt, err := db.Prepare("insert into dataceps(id, cep, logradouro, bairro, localidade, uf, ibge) values(?, ?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(cep.ID, cep.Cep, cep.Logradouro, cep.Bairro, cep.Localidade, cep.Uf, cep.Ibge)
+	if err != nil {
+		fmt.Print("second")
+		return err
+	}
+	return nil
+}
+
+func SearchCepUIHandler(w http.ResponseWriter, r *http.Request) {
 	cepParam := r.URL.Query().Get("cep")
 	if cepParam == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -94,7 +139,7 @@ func SearchCep(cep string) (*ViaCEP, error) {
 	var urlRight string = "/json/"
 
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", urlLeft + cep + urlRight, nil)
@@ -113,10 +158,13 @@ func SearchCep(cep string) (*ViaCEP, error) {
 		panic(err)
 	}
 
-	var dataCep ViaCEP
-	err = json.Unmarshal(body, &dataCep)
+	dataCep := NewDataCep()
+	err = json.Unmarshal(body, dataCep)
+	if err != nil {
+		panic(err)
+	}
 
-	return &dataCep, nil
+	return dataCep, nil
 }
 
 func printDataCep(idxCep int, dataCep *ViaCEP) {
